@@ -52,10 +52,50 @@ lib/                 hooks (active section, media queries, body lock)
 - Canvas particles pause offscreen; DPR capped; no heavy image assets
 - All motion uses GPU-friendly transforms
 
-## Deploy
+## Deploy — GitHub Pages (static, no server)
 
-Push to GitHub and deploy on Vercel / Netlify — the project has no server
-dependencies (`next build` output is fully static-capable).
+The portfolio is a **100% static site**: `next.config.ts` sets
+`output: "export"`, so `next build` emits plain HTML/CSS/JS into `out/`
+with **no Node runtime or backend**. Everything is served from the
+repository subpath (`basePath: "/Portfolio"`), matching
+
+`https://nxk-developer.github.io/Portfolio/`
+
+### One-time setup
+
+1. In the repository: **Settings → Pages → Build and deployment →
+   Source: “GitHub Actions”**.
+2. Set the **Pages** environment protection as desired (optional).
+3. Push to `main` (or run the workflow manually from the Actions tab).
+
+`.github/workflows/deploy.yml` then:
+
+1. `npm ci` + typecheck + lint
+2. `npm run build` → static export in `out/`
+3. uploads `out/` as a Pages artifact
+4. deploys it to Pages (permissions are scoped to the workflow)
+
+No other configuration is needed — asset paths, manifest `start_url`/`scope`,
+OG image URLs and the skip-link target are all already subpath-aware.
+
+### Overrides (only if you change things)
+
+- **Repo renamed / different subpath** — add a repository Variable
+  `NEXT_PUBLIC_BASE_PATH` (e.g. `/MyNewName`; use `/` for a user/org site
+  at the domain root).
+- **Custom domain** — add a repository Variable `NEXT_PUBLIC_SITE_URL`
+  (e.g. `https://example.com`); it becomes the canonical/OG origin.
+
+### Preview the built site locally
+
+```bash
+npm run build
+npm run preview:pages      # serves out/ at http://localhost:4141/Portfolio/
+```
+
+`scripts/serve-pages.mjs` behaves like github.io — trailing-slash redirect,
+correct MIME types for fonts/`_next` assets, `start_url`-correct subpath and a
+custom `404.html`. `npm run dev` also runs under `/Portfolio` locally.
 
 ---
 
