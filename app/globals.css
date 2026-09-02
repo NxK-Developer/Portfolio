@@ -1,0 +1,193 @@
+@import "tailwindcss";
+
+/* Self-hosted variable fonts (bundled at build time, no runtime fetch) */
+@import "@fontsource-variable/space-grotesk";
+@import "@fontsource-variable/inter";
+@import "@fontsource-variable/jetbrains-mono";
+
+/* ------------------------------------------------------------------ */
+/*  NXK DESIGN TOKENS                                                  */
+/* ------------------------------------------------------------------ */
+@theme {
+  /* Palette — restrained dark interface with a single iris accent */
+  --color-ink: #06060a;
+  --color-abyss: #0b0c12;
+  --color-raised: #10121a;
+  --color-bone: #edeef3;
+  --color-fog: #9ea1ad;
+  --color-dim: #63666f;
+  --color-line: #20222c;
+  --color-accent: #8b7bff;
+  --color-accent-soft: #b7abff;
+  --color-mint: #6fe7c8;
+
+  --font-display: "Space Grotesk Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Inter Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono Variable", ui-monospace, "SFMono-Regular",
+    monospace;
+
+  --radius-card: 1.25rem;
+
+  --shadow-glow: 0 0 60px -12px rgb(139 123 255 / 0.45);
+}
+
+/* ------------------------------------------------------------------ */
+/*  BASE                                                               */
+/* ------------------------------------------------------------------ */
+html {
+  scroll-padding-top: 110px;
+  color-scheme: dark;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+body {
+  background-color: var(--color-ink);
+  color: var(--color-bone);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow-x: clip;
+}
+
+/* Selection + focus */
+::selection {
+  background: rgb(139 123 255 / 0.28);
+  color: var(--color-bone);
+}
+
+:where(a, button, input, textarea, select, [tabindex]):focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-ink);
+}
+::-webkit-scrollbar-thumb {
+  background: #22242e;
+  border-radius: 8px;
+  border: 2px solid var(--color-ink);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #2e3140;
+}
+
+/* Custom cursor active — hide native cursor on fine pointers only */
+@media (pointer: fine) {
+  html.nxk-cursor,
+  html.nxk-cursor a,
+  html.nxk-cursor button,
+  html.nxk-cursor [role="button"] {
+    cursor: none;
+  }
+  /* Keep the native caret I-beam where text is typed */
+  html.nxk-cursor input,
+  html.nxk-cursor textarea,
+  html.nxk-cursor select {
+    cursor: auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/*  UTILITIES                                                          */
+/* ------------------------------------------------------------------ */
+@layer utilities {
+  .glass {
+    background: rgb(11 12 18 / 0.6);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgb(255 255 255 / 0.08);
+  }
+
+  /* Fine blueprint grid, faded toward the edges */
+  .grid-overlay {
+    background-image: linear-gradient(
+        to right,
+        rgb(255 255 255 / 0.045) 1px,
+        transparent 1px
+      ),
+      linear-gradient(to bottom, rgb(255 255 255 / 0.045) 1px, transparent 1px);
+    background-size: 72px 72px;
+    mask-image: radial-gradient(
+      ellipse 90% 80% at 50% 40%,
+      black 30%,
+      transparent 100%
+    );
+    -webkit-mask-image: radial-gradient(
+      ellipse 90% 80% at 50% 40%,
+      black 30%,
+      transparent 100%
+    );
+  }
+
+  .text-outline {
+    -webkit-text-stroke: 1px rgb(237 238 243 / 0.22);
+    color: transparent;
+  }
+
+  .text-outline-accent {
+    -webkit-text-stroke: 1px rgb(139 123 255 / 0.5);
+    color: transparent;
+  }
+
+  .noise-layer {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E");
+  }
+
+  .mask-fade-b {
+    mask-image: linear-gradient(to bottom, black 55%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to bottom, black 55%, transparent 100%);
+  }
+
+  .animate-float-slow {
+    animation: nxk-float 12s ease-in-out infinite;
+  }
+  .animate-float-slower {
+    animation: nxk-float 18s ease-in-out infinite reverse;
+  }
+  .animate-spin-slow {
+    animation: nxk-spin 44s linear infinite;
+  }
+  .animate-spin-slower {
+    animation: nxk-spin 30s linear infinite reverse;
+  }
+  .animate-spin-rev {
+    animation: nxk-spin 60s linear infinite reverse;
+  }
+}
+
+@keyframes nxk-float {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(0, -22px, 0);
+  }
+}
+
+@keyframes nxk-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
