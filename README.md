@@ -8,9 +8,11 @@ A premium, interactive personal portfolio built with **Next.js**, **TypeScript**
 
 ```bash
 npm install
-npm run dev        # http://localhost:3000
-npm run build      # production build
-npm run lint       # eslint
+npm run dev          # http://localhost:3000
+npm run build        # production build
+npm run typecheck    # tsc --noEmit
+npm run lint         # eslint
+npm run audit:smoke  # jsdom runtime smoke test (loader, nav, menu, form, toasts)
 ```
 
 ## Editing content

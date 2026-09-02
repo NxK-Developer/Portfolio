@@ -47,7 +47,7 @@ export function Hero({ ready }: { ready: boolean }) {
       id="home"
       aria-label="Introduction"
       onMouseMove={onMouseMove}
-      className="relative flex min-h-[100svh] items-center overflow-hidden"
+      className="relative flex min-h-[100svh] overflow-hidden"
     >
       {/* Layer 0 — base atmosphere */}
       <div aria-hidden className="absolute inset-0">
@@ -59,7 +59,7 @@ export function Hero({ ready }: { ready: boolean }) {
 
       {/* Layer 1 — particles (parallax far) */}
       <motion.div aria-hidden style={reduced ? undefined : layerFar} className="absolute inset-0">
-        <HeroCanvas />
+        <HeroCanvas active={ready} />
       </motion.div>
 
       {/* Layer 2 — floating geometry (parallax mid) */}
@@ -88,8 +88,8 @@ export function Hero({ ready }: { ready: boolean }) {
         </svg>
       </motion.div>
 
-      {/* Layer 3 — content */}
-      <div className="relative z-10 mx-auto w-full max-w-6xl px-6 pb-24 pt-32 sm:px-8 lg:px-6">
+      {/* Layer 3 — content (my-auto centers when it fits, grows when it doesn't) */}
+      <div className="relative z-10 mx-auto my-auto w-full max-w-6xl px-6 py-28 sm:px-8 sm:py-32 lg:px-6">
         <motion.p
           {...enter(0.15)}
           className="mb-6 flex items-center gap-3 font-mono text-[11px] uppercase tracking-[0.4em] text-accent-soft sm:mb-8"
@@ -111,7 +111,7 @@ export function Hero({ ready }: { ready: boolean }) {
           </span>
           <span className="block overflow-hidden pb-2">
             <motion.span
-              className="text-outline block text-[clamp(3rem,12.5vw,9.5rem)]"
+              className="text-outline-strong block text-[clamp(3rem,12.5vw,9.5rem)]"
               initial={reduced ? false : { y: "110%", rotate: -2 }}
               animate={ready ? { y: "0%", rotate: 0 } : {}}
               transition={{ duration: 1, delay: 0.42, ease: [0.16, 1, 0.3, 1] }}

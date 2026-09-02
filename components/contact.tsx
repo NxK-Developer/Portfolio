@@ -90,7 +90,7 @@ export function Contact() {
   };
 
   const fieldClass = (invalid: boolean) =>
-    `w-full rounded-xl border bg-abyss px-4 py-3.5 text-sm text-bone placeholder:text-dim/70 transition-colors duration-300 focus:outline-none ${
+    `w-full rounded-xl border bg-abyss px-4 py-3.5 text-sm text-bone placeholder:text-fog/60 transition-colors duration-300 focus:outline-none ${
       invalid
         ? "border-red-400/60 focus:border-red-400"
         : "border-line hover:border-white/15 focus:border-accent/70"

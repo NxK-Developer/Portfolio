@@ -7,6 +7,7 @@ import { ProjectVisual } from "./projects/project-visual";
 import { Reveal } from "@/components/reveal";
 import { SectionHeading } from "@/components/ui/section-heading";
 import { Button, notifyPlaceholder } from "@/components/ui/button";
+import { scrollToSection } from "@/lib/hooks";
 import { projects } from "@/content/projects";
 
 /**
@@ -138,7 +139,7 @@ export function Projects() {
                 </code>
               </p>
             </div>
-            <Button href="#contact" onClick={() => document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" })} variant="ghost">
+            <Button href="#contact" onClick={() => scrollToSection("contact")} variant="ghost">
               Discuss a project
             </Button>
           </div>

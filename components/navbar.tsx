@@ -1,7 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion } from "motion/react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { navLinks, site } from "@/content/site";
 import { scrollToSection, useActiveSection } from "@/lib/hooks";
@@ -12,6 +12,8 @@ export function Navbar({ ready }: { ready: boolean }) {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
   const active = useActiveSection(sectionIds);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const toggleRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
@@ -20,13 +22,45 @@ export function Navbar({ ready }: { ready: boolean }) {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  // Close the mobile menu with Escape and lock scroll while open.
+  // Mobile menu: scroll lock, focus management, focus trap, Escape.
   useEffect(() => {
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
+    if (!open) return;
+
+    document.body.style.overflow = "hidden";
+    // Hide background content from AT/keyboard while the dialog is open.
+    document.querySelector("main")?.setAttribute("inert", "");
+    document.querySelector("footer")?.setAttribute("inert", "");
+
+    const menu = menuRef.current;
+    const first = menu?.querySelector<HTMLElement>("button");
+    first?.focus();
+
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        setOpen(false);
+        toggleRef.current?.focus();
+        return;
+      }
+      if (e.key !== "Tab" || !menu) return;
+      const items = [...menu.querySelectorAll<HTMLElement>("button")];
+      if (items.length === 0) return;
+      const firstItem = items[0];
+      const lastItem = items[items.length - 1];
+      if (e.shiftKey && document.activeElement === firstItem) {
+        e.preventDefault();
+        lastItem.focus();
+      } else if (!e.shiftKey && document.activeElement === lastItem) {
+        e.preventDefault();
+        firstItem.focus();
+      }
+    };
     window.addEventListener("keydown", onKey);
-    document.body.style.overflow = open ? "hidden" : "";
+
     return () => {
       window.removeEventListener("keydown", onKey);
+      document.querySelector("main")?.removeAttribute("inert");
+      document.querySelector("footer")?.removeAttribute("inert");
       document.body.style.overflow = "";
     };
   }, [open]);
@@ -101,6 +135,7 @@ export function Navbar({ ready }: { ready: boolean }) {
 
           {/* Mobile toggle */}
           <button
+            ref={toggleRef}
             onClick={() => setOpen((v) => !v)}
             aria-expanded={open}
             aria-controls="mobile-nav"
@@ -133,6 +168,10 @@ export function Navbar({ ready }: { ready: boolean }) {
         {open && (
           <motion.div
             id="mobile-nav"
+            ref={menuRef}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Navigation menu"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}

@@ -13,14 +13,18 @@ type Particle = {
 
 /**
  * Lightweight interactive particle field.
+ * — only animates while `active` (after the loading screen)
  * — pauses when offscreen / tab hidden
  * — DPR capped at 1.75
- * — static + no rAF for reduced motion
+ * — static single frame for reduced motion
  */
-export function HeroCanvas() {
+export function HeroCanvas({ active }: { active: boolean }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const reduced = useReducedMotion();
+  const startRef = useRef<() => void>(() => {});
+  const stopRef = useRef<() => void>(() => {});
 
+  // Master setup: sizing, listeners, IO gating.
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -55,6 +59,7 @@ export function HeroCanvas() {
         vy: (Math.random() - 0.5) * 0.22,
         r: Math.random() * 1.4 + 0.6,
       }));
+      if (reduced) draw(); // one static frame
     };
 
     const draw = () => {
@@ -118,14 +123,17 @@ export function HeroCanvas() {
     };
 
     const start = () => {
-      if (running || reduced) return;
-      running = true;
-      raf = requestAnimationFrame(loop);
+      if (!reduced && !running) {
+        running = true;
+        raf = requestAnimationFrame(loop);
+      }
     };
     const stop = () => {
       running = false;
       cancelAnimationFrame(raf);
     };
+    startRef.current = start;
+    stopRef.current = stop;
 
     const onMouse = (e: MouseEvent) => {
       const rect = canvas.getBoundingClientRect();
@@ -138,11 +146,6 @@ export function HeroCanvas() {
     };
 
     build();
-    if (reduced) {
-      draw(); // one static frame
-    } else {
-      start();
-    }
 
     const io = new IntersectionObserver(
       ([entry]) => (entry.isIntersecting ? start() : stop()),
@@ -150,26 +153,30 @@ export function HeroCanvas() {
     );
     io.observe(parent);
 
-    const onResize = () => {
-      build();
-      if (!reduced && !running) start();
-    };
+    const onResize = () => build();
+    const onVisibility = () => (document.hidden ? stop() : start());
 
     window.addEventListener("resize", onResize);
+    document.addEventListener("visibilitychange", onVisibility);
     canvas.addEventListener("mousemove", onMouse, { passive: true });
     canvas.addEventListener("mouseleave", onLeave);
-    document.addEventListener("visibilitychange", () =>
-      document.hidden ? stop() : start()
-    );
 
     return () => {
       stop();
       io.disconnect();
       window.removeEventListener("resize", onResize);
+      document.removeEventListener("visibilitychange", onVisibility);
       canvas.removeEventListener("mousemove", onMouse);
       canvas.removeEventListener("mouseleave", onLeave);
     };
   }, [reduced]);
+
+  // Animate only once the loading screen has finished.
+  useEffect(() => {
+    if (reduced) return;
+    if (active) startRef.current();
+    else stopRef.current();
+  }, [active, reduced]);
 
   return (
     <canvas

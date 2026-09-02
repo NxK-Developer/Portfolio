@@ -1,35 +1,6 @@
 "use client";
 
-import { useEffect, useState, useSyncExternalStore } from "react";
-
-function subscribeMedia(query: string, onChange: () => void) {
-  const mql = window.matchMedia(query);
-  mql.addEventListener("change", onChange);
-  return () => mql.removeEventListener("change", onChange);
-}
-
-function readMedia(query: string) {
-  return window.matchMedia(query).matches;
-}
-
-/** SSR-safe media query hook (via useSyncExternalStore). */
-export function useMediaQuery(query: string): boolean {
-  return useSyncExternalStore(
-    (onChange) => subscribeMedia(query, onChange),
-    () => readMedia(query),
-    () => false
-  );
-}
-
-/** True when the user prefers reduced motion. */
-export function useReducedMotionPref(): boolean {
-  return useMediaQuery("(prefers-reduced-motion: reduce)");
-}
-
-/** True on fine pointer devices (mouse/trackpad). */
-export function useFinePointer(): boolean {
-  return useMediaQuery("(pointer: fine)");
-}
+import { useEffect, useState } from "react";
 
 /** Tracks the active section id while scrolling. */
 export function useActiveSection(ids: readonly string[]): string {
@@ -70,10 +41,11 @@ export function useBodyLock(locked: boolean) {
   }, [locked]);
 }
 
-/** Scrolls smoothly to a section id (with a hash update). */
+/** Scrolls to a section id — animated, but instant for reduced-motion users. */
 export function scrollToSection(id: string) {
   const el = document.getElementById(id);
   if (!el) return;
-  el.scrollIntoView({ behavior: "smooth", block: "start" });
+  const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  el.scrollIntoView({ behavior: reduced ? "auto" : "smooth", block: "start" });
   history.replaceState(null, "", `#${id}`);
 }

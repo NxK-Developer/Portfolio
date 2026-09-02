@@ -10,9 +10,10 @@ export type PlaceholderPayload = { message: string };
 
 /** Fired when a placeholder link (empty URL) is clicked. */
 export function notifyPlaceholder(message = "Link coming soon — add your URL in content/site.ts.") {
-  window.dispatchEvent(
-    new CustomEvent<PlaceholderPayload>("nxk:placeholder", { detail: { message } })
-  );
+  const payload = new (window.CustomEvent ?? CustomEvent)("nxk:placeholder", {
+    detail: { message },
+  }) as CustomEvent<PlaceholderPayload>;
+  window.dispatchEvent(payload);
 }
 
 const base =
